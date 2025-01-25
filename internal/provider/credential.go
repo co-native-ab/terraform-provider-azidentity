@@ -95,7 +95,11 @@ func newTokenRequestOptions(cfg credentialConfig) policy.TokenRequestOptions {
 func typesSetToStringSlice(input types.Set) []string {
 	result := []string{}
 	for _, v := range input.Elements() {
-		result = append(result, v.(basetypes.StringValue).ValueString())
+		vv, ok := v.(basetypes.StringValue)
+		if !ok {
+			continue
+		}
+		result = append(result, vv.ValueString())
 	}
 
 	return result

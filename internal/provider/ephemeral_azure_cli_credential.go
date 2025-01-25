@@ -89,6 +89,7 @@ func (r *ephemeralAzureCLICredential) Schema(ctx context.Context, _ ephemeral.Sc
 			"access_token": schema.StringAttribute{
 				MarkdownDescription: "The issued access token.",
 				Computed:            true,
+				Sensitive:           true,
 			},
 			"expires_on": schema.StringAttribute{
 				MarkdownDescription: "When the issued access token expires in RFC3339 format.",
