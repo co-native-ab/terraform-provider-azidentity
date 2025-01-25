@@ -8,28 +8,25 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ ephemeral.EphemeralResource = &ephemeralDefaultCredential{}
+var _ ephemeral.EphemeralResource = &ephemeralAzureCLICredential{}
 
-func newEphemeralDefaultCredential() ephemeral.EphemeralResource {
-	return &ephemeralDefaultCredential{}
+func newEphemeralAzureCLICredential() ephemeral.EphemeralResource {
+	return &ephemeralAzureCLICredential{}
 }
 
-type ephemeralDefaultCredential struct {
+type ephemeralAzureCLICredential struct {
 	getCredFn getCredentialFn
 }
 
-type ephemeralDefaultCredentialModel struct {
-	Cloud                      types.String `tfsdk:"cloud"`
+type ephemeralAzureCLICredentialModel struct {
 	TenantID                   types.String `tfsdk:"tenant_id"`
+	SubscriptionID             types.String `tfsdk:"subscription_id"`
 	AdditionallyAllowedTenants types.Set    `tfsdk:"additionally_allowed_tenants"`
-	DisableInstanceDiscovery   types.Bool   `tfsdk:"disable_instance_discovery"`
 	Claims                     types.String `tfsdk:"claims"`
 	EnableCAE                  types.Bool   `tfsdk:"enable_cae"`
 	Scopes                     types.Set    `tfsdk:"scopes"`
@@ -40,50 +37,37 @@ type ephemeralDefaultCredentialModel struct {
 	Error                      types.String `tfsdk:"error"`
 }
 
-func (r *ephemeralDefaultCredentialModel) newCredentialConfig() credentialConfig {
+func (r *ephemeralAzureCLICredentialModel) newCredentialConfig() credentialConfig {
 	return credentialConfig{
-		CloudConfig:                getCloudConfig(r.Cloud.ValueString()),
 		TenantID:                   r.TenantID.ValueString(),
+		SubscriptionID:             r.SubscriptionID.ValueString(),
 		AdditionallyAllowedTenants: typesSetToStringSlice(r.AdditionallyAllowedTenants),
-		DisableInstanceDiscovery:   r.DisableInstanceDiscovery.ValueBool(),
 		Claims:                     r.Claims.ValueString(),
-		EnableCAE:                  r.EnableCAE.ValueBool(),
 		Scopes:                     typesSetToStringSlice(r.Scopes),
 		ContinueOnError:            r.ContinueOnError.ValueBool(),
 	}
 }
 
-func (r *ephemeralDefaultCredential) Metadata(_ context.Context, req ephemeral.MetadataRequest, resp *ephemeral.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_default_credential"
+func (r *ephemeralAzureCLICredential) Metadata(_ context.Context, req ephemeral.MetadataRequest, resp *ephemeral.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_azure_cli_credential"
 }
 
-func (r *ephemeralDefaultCredential) Schema(ctx context.Context, _ ephemeral.SchemaRequest, resp *ephemeral.SchemaResponse) {
+func (r *ephemeralAzureCLICredential) Schema(ctx context.Context, _ ephemeral.SchemaRequest, resp *ephemeral.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Default Credential Ephemeral Resource",
+		MarkdownDescription: "Azure CLI Credential Ephemeral Resource",
 		Attributes: map[string]schema.Attribute{
-			"cloud": schema.StringAttribute{
-				MarkdownDescription: "Cloud specifies a cloud for the client. The default is AzurePublic.",
-				Optional:            true,
-				Validators: []validator.String{
-					stringvalidator.OneOf(
-						"AzurePublic",
-						"AzureChina",
-						"AzureGovernment",
-					),
-				},
-			},
 			"tenant_id": schema.StringAttribute{
 				MarkdownDescription: "TenantID sets the default tenant for authentication via the Azure CLI and workload identity. The default is empty, use 'organizations' or 'common' if you can't provide one but required to use one.",
+				Optional:            true,
+			},
+			"subscription_id": schema.StringAttribute{
+				MarkdownDescription: "SubscriptionID is the ID (or name) of a subscription. Set this to acquire tokens for an account other than the Azure CLI's current account. The default is empty.",
 				Optional:            true,
 			},
 			"additionally_allowed_tenants": schema.SetAttribute{
 				MarkdownDescription: "AdditionallyAllowedTenants specifies tenants to which the credential may authenticate, in addition to TenantID. When TenantID is empty, this option has no effect and the credential will authenticate to any requested tenant. Add the wildcard value '*' to allow the credential to authenticate to any tenant. This value can also be set as a semicolon delimited list of tenants in the environment variable AZURE_ADDITIONALLY_ALLOWED_TENANTS. The default is an empty list.",
 				Optional:            true,
 				ElementType:         types.StringType,
-			},
-			"disable_instance_discovery": schema.BoolAttribute{
-				MarkdownDescription: "DisableInstanceDiscovery should be set true only by applications authenticating in disconnected clouds, or private clouds such as Azure Stack. It determines whether the credential requests Microsoft Entra instance metadata from https://login.microsoft.com before authenticating. Setting this to true will skip this request, making the application responsible for ensuring the configured authority is valid and trustworthy. The default is false.",
-				Optional:            true,
 			},
 			"claims": schema.StringAttribute{
 				MarkdownDescription: "Claims are any additional claims required for the token to satisfy a conditional access policy, such as a service may return in a claims challenge following an authorization failure. If a service returned the claims value base64 encoded, it must be decoded before setting this field. The default is an empty string.",
@@ -122,7 +106,7 @@ func (r *ephemeralDefaultCredential) Schema(ctx context.Context, _ ephemeral.Sch
 	}
 }
 
-func (p *ephemeralDefaultCredential) Configure(ctx context.Context, req ephemeral.ConfigureRequest, resp *ephemeral.ConfigureResponse) {
+func (p *ephemeralAzureCLICredential) Configure(ctx context.Context, req ephemeral.ConfigureRequest, resp *ephemeral.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -139,8 +123,8 @@ func (p *ephemeralDefaultCredential) Configure(ctx context.Context, req ephemera
 	p.getCredFn = getCredFn
 }
 
-func (r *ephemeralDefaultCredential) Open(ctx context.Context, req ephemeral.OpenRequest, resp *ephemeral.OpenResponse) {
-	var data ephemeralDefaultCredentialModel
+func (r *ephemeralAzureCLICredential) Open(ctx context.Context, req ephemeral.OpenRequest, resp *ephemeral.OpenResponse) {
+	var data ephemeralAzureCLICredentialModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -148,7 +132,7 @@ func (r *ephemeralDefaultCredential) Open(ctx context.Context, req ephemeral.Ope
 	}
 
 	cfg := data.newCredentialConfig()
-	token, errSummary, err := getToken(ctx, defaultCredential, r.getCredFn, cfg)
+	token, errSummary, err := getToken(ctx, azureCLICredential, r.getCredFn, cfg)
 	if err != nil && cfg.ContinueOnError {
 		data.Error = types.StringValue(err.Error())
 		data.Success = types.BoolValue(false)

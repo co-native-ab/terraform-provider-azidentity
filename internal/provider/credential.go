@@ -15,42 +15,20 @@ import (
 type credentialType string
 
 const (
-	defaultCredential credentialType = "DefaultCredential"
+	defaultCredential  credentialType = "DefaultCredential"
+	azureCLICredential credentialType = "AzureCLICredential"
 )
-
-type credentialConfigModel struct {
-	Cloud                      types.String `tfsdk:"cloud"`
-	TenantID                   types.String `tfsdk:"tenant_id"`
-	AdditionallyAllowedTenants types.Set    `tfsdk:"additionally_allowed_tenants"`
-	DisableInstanceDiscovery   types.Bool   `tfsdk:"disable_instance_discovery"`
-	Claims                     types.String `tfsdk:"claims"`
-	EnableCAE                  types.Bool   `tfsdk:"enable_cae"`
-	Scopes                     types.Set    `tfsdk:"scopes"`
-	ContinueOnError            types.Bool   `tfsdk:"continue_on_error"`
-}
 
 type credentialConfig struct {
 	CloudConfig                cloud.Configuration `json:"cloud_config"`
 	TenantID                   string              `json:"tenant_id"`
+	SubscriptionID             string              `json:"subscription_id"`
 	AdditionallyAllowedTenants []string            `json:"additionally_allowed_tenants"`
 	DisableInstanceDiscovery   bool                `json:"disable_instance_discovery"`
 	Claims                     string              `json:"claims"`
 	EnableCAE                  bool                `json:"enable_cae"`
 	Scopes                     []string            `json:"scopes"`
 	ContinueOnError            bool                `json:"continue_on_error"`
-}
-
-func newCredentialConfig(data ephemeralDefaultCredentialModel) credentialConfig {
-	return credentialConfig{
-		CloudConfig:                getCloudConfig(data.Cloud.ValueString()),
-		TenantID:                   data.TenantID.ValueString(),
-		AdditionallyAllowedTenants: typesSetToStringSlice(data.AdditionallyAllowedTenants),
-		DisableInstanceDiscovery:   data.DisableInstanceDiscovery.ValueBool(),
-		Claims:                     data.Claims.ValueString(),
-		EnableCAE:                  data.EnableCAE.ValueBool(),
-		Scopes:                     typesSetToStringSlice(data.Scopes),
-		ContinueOnError:            data.ContinueOnError.ValueBool(),
-	}
 }
 
 type getCredentialFn func(credType credentialType, cfg credentialConfig) (azcore.TokenCredential, error)
@@ -60,6 +38,8 @@ func newGetcredentialFn() getCredentialFn {
 		switch credType {
 		case defaultCredential:
 			return newDefaultAzureCredential(cfg)
+		case azureCLICredential:
+			return newAzureCLICredential(cfg)
 		default:
 			return nil, fmt.Errorf("unsupported credential type: %s", credType)
 		}
@@ -77,6 +57,15 @@ func newDefaultAzureCredential(cfg credentialConfig) (azcore.TokenCredential, er
 	}
 
 	return azidentity.NewDefaultAzureCredential(options)
+}
+
+func newAzureCLICredential(cfg credentialConfig) (azcore.TokenCredential, error) {
+	options := &azidentity.AzureCLICredentialOptions{
+		AdditionallyAllowedTenants: cfg.AdditionallyAllowedTenants,
+		Subscription:               cfg.SubscriptionID,
+		TenantID:                   cfg.TenantID,
+	}
+	return azidentity.NewAzureCLICredential(options)
 }
 
 func getToken(ctx context.Context, credType credentialType, getCredFn getCredentialFn, cfg credentialConfig) (azcore.AccessToken, string, error) {
