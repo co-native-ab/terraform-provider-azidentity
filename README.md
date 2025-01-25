@@ -1,3 +1,3 @@
 # Terraform Provider azidentity
 
-A Terraform provider for authenticating to Azure and Entra.
+The azidentity provider is used to interact with the Azure Identity service.
