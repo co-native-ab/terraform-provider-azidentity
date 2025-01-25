@@ -75,7 +75,9 @@ func TestEphemeralDefaultCredentialEmpty(t *testing.T) {
 					statecheck.ExpectKnownValue(
 						"echo.this",
 						tfjsonpath.New("data").AtMapKey("scopes"),
-						knownvalue.Null(),
+						knownvalue.SetExact([]knownvalue.Check{
+							knownvalue.StringExact("ze-scope-1"),
+						}),
 					),
 					statecheck.ExpectKnownValue(
 						"echo.this",
@@ -223,6 +225,13 @@ func TestEphemeralDefaultCredentialFailGetToken(t *testing.T) {
 						tfjsonpath.New("data").AtMapKey("continue_on_error"),
 						knownvalue.Bool(true),
 					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("scopes"),
+						knownvalue.SetExact([]knownvalue.Check{
+							knownvalue.StringExact("ze-scope-1"),
+						}),
+					),
 				},
 			},
 		},
@@ -231,7 +240,9 @@ func TestEphemeralDefaultCredentialFailGetToken(t *testing.T) {
 
 func testEphemeralDefaultCredentialEmptyConfig() string {
 	return `
-ephemeral "azidentity_default_credential" "this" {}
+ephemeral "azidentity_default_credential" "this" {
+	scopes = ["ze-scope-1"]
+}
 
 provider "echo" {
   data = ephemeral.azidentity_default_credential.this
@@ -265,6 +276,7 @@ resource "echo" "this" {}
 func testEphemeralDefaultCredentialConfigContinueOnError() string {
 	return `
 ephemeral "azidentity_default_credential" "this" {
+	scopes            = ["ze-scope-1"]
 	continue_on_error = true
 }
 

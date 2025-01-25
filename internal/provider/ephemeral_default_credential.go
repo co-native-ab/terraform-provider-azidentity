@@ -94,8 +94,8 @@ func (r *ephemeralDefaultCredential) Schema(ctx context.Context, _ ephemeral.Sch
 				Optional:            true,
 			},
 			"scopes": schema.SetAttribute{
-				MarkdownDescription: "Scopes contains the list of permission scopes required for the token. The default is an empty list.",
-				Optional:            true,
+				MarkdownDescription: "Scopes contains the list of permission scopes required for the token. E.g. https://management.azure.com/.default for Azure Resource Manager or https://graph.microsoft.com/.default for Microsoft Graph.",
+				Required:            true,
 				ElementType:         types.StringType,
 			},
 			"continue_on_error": schema.BoolAttribute{

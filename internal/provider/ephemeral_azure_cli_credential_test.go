@@ -70,7 +70,9 @@ func TestEphemeralAzureCLICredentialEmpty(t *testing.T) {
 					statecheck.ExpectKnownValue(
 						"echo.this",
 						tfjsonpath.New("data").AtMapKey("scopes"),
-						knownvalue.Null(),
+						knownvalue.SetExact([]knownvalue.Check{
+							knownvalue.StringExact("ze-scope-1"),
+						}),
 					),
 					statecheck.ExpectKnownValue(
 						"echo.this",
@@ -213,6 +215,13 @@ func TestEphemeralAzureCLICredentialFailGetToken(t *testing.T) {
 						tfjsonpath.New("data").AtMapKey("continue_on_error"),
 						knownvalue.Bool(true),
 					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("scopes"),
+						knownvalue.SetExact([]knownvalue.Check{
+							knownvalue.StringExact("ze-scope-1"),
+						}),
+					),
 				},
 			},
 		},
@@ -221,7 +230,9 @@ func TestEphemeralAzureCLICredentialFailGetToken(t *testing.T) {
 
 func testEphemeralAzureCLICredentialEmptyConfig() string {
 	return `
-ephemeral "azidentity_azure_cli_credential" "this" {}
+ephemeral "azidentity_azure_cli_credential" "this" {
+	scopes = ["ze-scope-1"]
+}
 
 provider "echo" {
   data = ephemeral.azidentity_azure_cli_credential.this
@@ -254,6 +265,7 @@ resource "echo" "this" {}
 func testEphemeralAzureCLICredentialConfigContinueOnError() string {
 	return `
 ephemeral "azidentity_azure_cli_credential" "this" {
+	scopes            = ["ze-scope-1"]
 	continue_on_error = true
 }
 
