@@ -15,13 +15,16 @@ import (
 type credentialType string
 
 const (
-	defaultCredential  credentialType = "DefaultCredential"
-	azureCLICredential credentialType = "AzureCLICredential"
+	defaultCredential      credentialType = "DefaultCredential"
+	azureCLICredential     credentialType = "AzureCLICredential"
+	clientSecretCredential credentialType = "ClientSecretCredential"
 )
 
 type credentialConfig struct {
 	CloudConfig                cloud.Configuration `json:"cloud_config"`
 	TenantID                   string              `json:"tenant_id"`
+	ClientID                   string              `json:"client_id"`
+	ClientSecret               string              `json:"client_secret"`
 	SubscriptionID             string              `json:"subscription_id"`
 	AdditionallyAllowedTenants []string            `json:"additionally_allowed_tenants"`
 	DisableInstanceDiscovery   bool                `json:"disable_instance_discovery"`
@@ -40,6 +43,8 @@ func newGetcredentialFn() getCredentialFn {
 			return newDefaultAzureCredential(cfg)
 		case azureCLICredential:
 			return newAzureCLICredential(cfg)
+		case clientSecretCredential:
+			return newClientSecretCredential(cfg)
 		default:
 			return nil, fmt.Errorf("unsupported credential type: %s", credType)
 		}
@@ -66,6 +71,22 @@ func newAzureCLICredential(cfg credentialConfig) (azcore.TokenCredential, error)
 		TenantID:                   cfg.TenantID,
 	}
 	return azidentity.NewAzureCLICredential(options)
+}
+
+func newClientSecretCredential(cfg credentialConfig) (azcore.TokenCredential, error) {
+	options := &azidentity.ClientSecretCredentialOptions{
+		AdditionallyAllowedTenants: cfg.AdditionallyAllowedTenants,
+		DisableInstanceDiscovery:   cfg.DisableInstanceDiscovery,
+		ClientOptions: azcore.ClientOptions{
+			Cloud: cfg.CloudConfig,
+		},
+	}
+
+	tenantID := cfg.TenantID
+	clientID := cfg.ClientID
+	clientSecret := cfg.ClientSecret
+
+	return azidentity.NewClientSecretCredential(tenantID, clientID, clientSecret, options)
 }
 
 func getToken(ctx context.Context, credType credentialType, getCredFn getCredentialFn, cfg credentialConfig) (azcore.AccessToken, string, error) {
