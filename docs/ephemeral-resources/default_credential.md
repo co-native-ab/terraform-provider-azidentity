@@ -14,6 +14,7 @@ Default Credential Ephemeral Resource
 
 ```terraform
 terraform {
+  required_version = ">= 1.10.0"
   required_providers {
     azidentity = {
       source = "registry.terraform.io/co-native-ab/azidentity"

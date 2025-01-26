@@ -62,7 +62,9 @@ func (p *azidentityProvider) DataSources(ctx context.Context) []func() datasourc
 }
 
 func (p *azidentityProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{}
+	return []func() function.Function{
+		newFunctionUnsafeParseJWT,
+	}
 }
 
 func New(version string) func() provider.Provider {
