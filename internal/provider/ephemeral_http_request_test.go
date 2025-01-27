@@ -208,7 +208,7 @@ provider "echo" {
 
 resource "echo" "this" {}
 `, serverURL),
-				ExpectError: regexp.MustCompile(`connection refused`),
+				ExpectError: regexp.MustCompile(`Failed to send HTTP request`),
 			},
 		},
 	})
