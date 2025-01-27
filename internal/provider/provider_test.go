@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -14,8 +15,9 @@ func testNew(t *testing.T, getCredFn getCredentialFn) func() provider.Provider {
 
 	return func() provider.Provider {
 		return &azidentityProvider{
-			version:   "test",
-			getCredFn: getCredFn,
+			version:    "test",
+			getCredFn:  getCredFn,
+			httpClient: &http.Client{},
 		}
 	}
 }

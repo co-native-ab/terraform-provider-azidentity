@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
@@ -16,8 +17,9 @@ var _ provider.ProviderWithFunctions = &azidentityProvider{}
 var _ provider.ProviderWithEphemeralResources = &azidentityProvider{}
 
 type azidentityProvider struct {
-	version   string
-	getCredFn getCredentialFn
+	version    string
+	getCredFn  getCredentialFn
+	httpClient *http.Client
 }
 
 type AzidentityProviderModel struct{}
@@ -55,6 +57,7 @@ func (p *azidentityProvider) EphemeralResources(ctx context.Context) []func() ep
 		newEphemeralAzureCLICredential,
 		newEphemeralClientSecretCredential,
 		newEphemeralEnvironmentVariable,
+		newEphemeralHttpRequest,
 	}
 }
 
@@ -71,8 +74,9 @@ func (p *azidentityProvider) Functions(ctx context.Context) []func() function.Fu
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
 		return &azidentityProvider{
-			version:   version,
-			getCredFn: newGetCredentialFn(),
+			version:    version,
+			getCredFn:  newGetCredentialFn(),
+			httpClient: &http.Client{},
 		}
 	}
 }
