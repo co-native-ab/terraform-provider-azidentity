@@ -36,7 +36,7 @@ type credentialConfig struct {
 
 type getCredentialFn func(credType credentialType, cfg credentialConfig) (azcore.TokenCredential, error)
 
-func newGetcredentialFn() getCredentialFn {
+func newGetCredentialFn() getCredentialFn {
 	return func(credType credentialType, cfg credentialConfig) (azcore.TokenCredential, error) {
 		switch credType {
 		case defaultCredential:

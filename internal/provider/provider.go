@@ -17,7 +17,7 @@ var _ provider.ProviderWithEphemeralResources = &azidentityProvider{}
 
 type azidentityProvider struct {
 	version   string
-	credGetFn getCredentialFn
+	getCredFn getCredentialFn
 }
 
 type AzidentityProviderModel struct{}
@@ -42,7 +42,7 @@ func (p *azidentityProvider) Configure(ctx context.Context, req provider.Configu
 		return
 	}
 
-	resp.EphemeralResourceData = p.credGetFn
+	resp.EphemeralResourceData = p
 }
 
 func (p *azidentityProvider) Resources(ctx context.Context) []func() resource.Resource {
@@ -72,7 +72,7 @@ func New(version string) func() provider.Provider {
 	return func() provider.Provider {
 		return &azidentityProvider{
 			version:   version,
-			credGetFn: newGetcredentialFn(),
+			getCredFn: newGetCredentialFn(),
 		}
 	}
 }

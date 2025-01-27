@@ -9,20 +9,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/echoprovider"
 )
 
-func testNew(t *testing.T, credGetFn getCredentialFn) func() provider.Provider {
+func testNew(t *testing.T, getCredFn getCredentialFn) func() provider.Provider {
 	t.Helper()
 
 	return func() provider.Provider {
 		return &azidentityProvider{
 			version:   "test",
-			credGetFn: credGetFn,
+			getCredFn: getCredFn,
 		}
 	}
 }
 
-func testProtoV6ProviderFactoriesWithEcho(t *testing.T, credGetFn getCredentialFn) map[string]func() (tfprotov6.ProviderServer, error) {
+func testProtoV6ProviderFactoriesWithEcho(t *testing.T, getCredFn getCredentialFn) map[string]func() (tfprotov6.ProviderServer, error) {
 	return map[string]func() (tfprotov6.ProviderServer, error){
-		"azidentity": providerserver.NewProtocol6WithError(testNew(t, credGetFn)()),
+		"azidentity": providerserver.NewProtocol6WithError(testNew(t, getCredFn)()),
 		"echo":       echoprovider.NewProviderServer(),
 	}
 }
