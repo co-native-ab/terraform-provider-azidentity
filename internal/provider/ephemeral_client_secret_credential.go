@@ -141,16 +141,16 @@ func (p *ephemeralClientSecretCredential) Configure(ctx context.Context, req eph
 		return
 	}
 
-	getCredFn, ok := req.ProviderData.(getCredentialFn)
+	provider, ok := req.ProviderData.(*azidentityProvider)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected ProviderData Type",
-			fmt.Sprintf("Expected getCredentialFn, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *azidentityProvider, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 		return
 	}
 
-	p.getCredFn = getCredFn
+	p.getCredFn = provider.getCredFn
 }
 
 func (r *ephemeralClientSecretCredential) Open(ctx context.Context, req ephemeral.OpenRequest, resp *ephemeral.OpenResponse) {
