@@ -54,6 +54,7 @@ func (p *azidentityProvider) EphemeralResources(ctx context.Context) []func() ep
 		newEphemeralDefaultCredential,
 		newEphemeralAzureCLICredential,
 		newEphemeralClientSecretCredential,
+		newEphemeralEnvironmentVariable,
 	}
 }
 
