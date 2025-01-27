@@ -15,9 +15,10 @@ import (
 type credentialType string
 
 const (
-	defaultCredential      credentialType = "DefaultCredential"
-	azureCLICredential     credentialType = "AzureCLICredential"
-	clientSecretCredential credentialType = "ClientSecretCredential"
+	defaultCredential         credentialType = "DefaultCredential"
+	azureCLICredential        credentialType = "AzureCLICredential"
+	clientSecretCredential    credentialType = "ClientSecretCredential"
+	clientAssertionCredential credentialType = "ClientAssertionCredential"
 )
 
 type credentialConfig struct {
@@ -25,6 +26,7 @@ type credentialConfig struct {
 	TenantID                   string              `json:"tenant_id"`
 	ClientID                   string              `json:"client_id"`
 	ClientSecret               string              `json:"client_secret"`
+	Assertion                  string              `json:"client_assertion"`
 	SubscriptionID             string              `json:"subscription_id"`
 	AdditionallyAllowedTenants []string            `json:"additionally_allowed_tenants"`
 	DisableInstanceDiscovery   bool                `json:"disable_instance_discovery"`
@@ -45,6 +47,8 @@ func newGetCredentialFn() getCredentialFn {
 			return newAzureCLICredential(cfg)
 		case clientSecretCredential:
 			return newClientSecretCredential(cfg)
+		case clientAssertionCredential:
+			return newClientAssertionCredential(cfg)
 		default:
 			return nil, fmt.Errorf("unsupported credential type: %s", credType)
 		}
@@ -70,6 +74,7 @@ func newAzureCLICredential(cfg credentialConfig) (azcore.TokenCredential, error)
 		Subscription:               cfg.SubscriptionID,
 		TenantID:                   cfg.TenantID,
 	}
+
 	return azidentity.NewAzureCLICredential(options)
 }
 
@@ -87,6 +92,24 @@ func newClientSecretCredential(cfg credentialConfig) (azcore.TokenCredential, er
 	clientSecret := cfg.ClientSecret
 
 	return azidentity.NewClientSecretCredential(tenantID, clientID, clientSecret, options)
+}
+
+func newClientAssertionCredential(cfg credentialConfig) (azcore.TokenCredential, error) {
+	options := &azidentity.ClientAssertionCredentialOptions{
+		AdditionallyAllowedTenants: cfg.AdditionallyAllowedTenants,
+		DisableInstanceDiscovery:   cfg.DisableInstanceDiscovery,
+		ClientOptions: azcore.ClientOptions{
+			Cloud: cfg.CloudConfig,
+		},
+	}
+
+	tenantID := cfg.TenantID
+	clientID := cfg.ClientID
+	getAssertionFn := func(context.Context) (string, error) {
+		return cfg.Assertion, nil
+	}
+
+	return azidentity.NewClientAssertionCredential(tenantID, clientID, getAssertionFn, options)
 }
 
 func getToken(ctx context.Context, credType credentialType, getCredFn getCredentialFn, cfg credentialConfig) (azcore.AccessToken, string, error) {
