@@ -84,6 +84,11 @@ func TestEphemeralClientSecretCredentialEmpty(t *testing.T) {
 						tfjsonpath.New("data").AtMapKey("continue_on_error"),
 						knownvalue.Null(),
 					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("timeout"),
+						knownvalue.Null(),
+					),
 				},
 			},
 		},
@@ -166,6 +171,11 @@ func TestEphemeralClientSecretCredential(t *testing.T) {
 						"echo.this",
 						tfjsonpath.New("data").AtMapKey("continue_on_error"),
 						knownvalue.Bool(true),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("timeout"),
+						knownvalue.StringExact("1s"),
 					),
 				},
 			},
@@ -281,6 +291,7 @@ ephemeral "azidentity_client_secret_credential" "this" {
 	enable_cae                   = true
 	scopes                       = ["ze-scope-1", "ze-scope-2"]
 	continue_on_error            = true
+	timeout                      = "1s"
 }
 
 provider "echo" {

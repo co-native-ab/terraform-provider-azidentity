@@ -79,6 +79,11 @@ resource "echo" "this" {}
 						tfjsonpath.New("data").AtMapKey("success"),
 						knownvalue.Bool(true),
 					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("timeout"),
+						knownvalue.Null(),
+					),
 				},
 			},
 		},
@@ -128,6 +133,7 @@ ephemeral "azidentity_http_request" "this" {
 	request_headers = {
 		"Content-Type" = "application/json"
 	}
+	timeout         = "1s"
 }
 
 provider "echo" {
@@ -176,6 +182,11 @@ resource "echo" "this" {}
 						"echo.this",
 						tfjsonpath.New("data").AtMapKey("success"),
 						knownvalue.Bool(true),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("timeout"),
+						knownvalue.StringExact("1s"),
 					),
 				},
 			},
