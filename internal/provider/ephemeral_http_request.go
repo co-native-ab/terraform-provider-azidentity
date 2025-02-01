@@ -105,7 +105,7 @@ func (r *ephemeralHttpRequest) Schema(ctx context.Context, _ ephemeral.SchemaReq
 				Computed:            true,
 			},
 			"success": schema.BoolAttribute{
-				MarkdownDescription: "Indicates if a token was successfully acquired.",
+				MarkdownDescription: "Indicates if the HTTP request was successful.",
 				Computed:            true,
 			},
 			"error": schema.StringAttribute{

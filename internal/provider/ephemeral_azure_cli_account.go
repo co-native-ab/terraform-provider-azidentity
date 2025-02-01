@@ -78,7 +78,7 @@ func (r *ephemeralAzureCLIAccount) Schema(ctx context.Context, _ ephemeral.Schem
 				Computed:            true,
 			},
 			"success": schema.BoolAttribute{
-				MarkdownDescription: "Indicates if a token was successfully acquired.",
+				MarkdownDescription: "Indicates whether the Azure CLI account show command succeeded.",
 				Computed:            true,
 			},
 			"error": schema.StringAttribute{
