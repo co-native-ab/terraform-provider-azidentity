@@ -3,6 +3,7 @@ package provider
 import (
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
@@ -258,6 +259,36 @@ func TestEphemeralClientSecretCredentialFailGetToken(t *testing.T) {
 						}),
 					),
 				},
+			},
+		},
+	})
+}
+
+func TestEphemeralClientSecretCredentialGetTokenTimeout(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_10_0),
+		},
+		IsUnitTest:               true,
+		ProtoV6ProviderFactories: testProtoV6ProviderFactoriesWithEcho(t, testNewGetCredentialTimeoutFn(t, 50*time.Millisecond)),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+ephemeral "azidentity_client_secret_credential" "this" {
+	tenant_id     = "ze-tenant"
+	client_id     = "ze-client"
+	client_secret = "ze-secret"
+    scopes        = ["ze-scope-1"]
+	timeout 	  = "10ms"
+}
+
+provider "echo" {
+  data = ephemeral.azidentity_client_secret_credential.this
+}
+
+resource "echo" "this" {}
+`,
+				ExpectError: regexp.MustCompile(`context deadline exceeded`),
 			},
 		},
 	})

@@ -3,6 +3,7 @@ package provider
 import (
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
@@ -233,6 +234,33 @@ func TestEphemeralAzureCLICredentialFailGetToken(t *testing.T) {
 						}),
 					),
 				},
+			},
+		},
+	})
+}
+
+func TestEphemeralAzureCLICredentialGetCredentialTimeout(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_10_0),
+		},
+		IsUnitTest:               true,
+		ProtoV6ProviderFactories: testProtoV6ProviderFactoriesWithEcho(t, testNewGetCredentialTimeoutFn(t, 50*time.Millisecond)),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+ephemeral "azidentity_azure_cli_credential" "this" {
+	scopes  = ["ze-scope-1"]
+	timeout = "10ms"
+}
+
+provider "echo" {
+  data = ephemeral.azidentity_azure_cli_credential.this
+}
+
+resource "echo" "this" {}
+`,
+				ExpectError: regexp.MustCompile(`context deadline exceeded`),
 			},
 		},
 	})
