@@ -109,7 +109,7 @@ func (r *ephemeralHttpRequest) Schema(ctx context.Context, _ ephemeral.SchemaReq
 				Computed:            true,
 			},
 			"error": schema.StringAttribute{
-				MarkdownDescription: "Error message if acquiring a token failed.",
+				MarkdownDescription: "Error message if the HTTP request failed.",
 				Computed:            true,
 			},
 		},

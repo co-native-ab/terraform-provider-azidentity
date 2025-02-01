@@ -82,7 +82,7 @@ func (r *ephemeralAzureCLIAccount) Schema(ctx context.Context, _ ephemeral.Schem
 				Computed:            true,
 			},
 			"error": schema.StringAttribute{
-				MarkdownDescription: "Error message if acquiring a token failed.",
+				MarkdownDescription: "Error message if the Azure CLI account show command failed.",
 				Computed:            true,
 			},
 		},
