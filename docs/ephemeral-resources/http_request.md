@@ -62,6 +62,7 @@ check "ip" {
 - `continue_on_error` (Boolean) ContinueOnError indicates whether to continue on error when the http request fails. The default is false.
 - `request_body` (String, Sensitive) The body of the HTTP request. Defaults to an empty body.
 - `request_headers` (Map of String, Sensitive) The headers to include in the HTTP request.
+- `timeout` (String) Timeout sets the maximum time allowed for the request to complete, the string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as '300ms', '1.5h' or '2h45m'. Valid time units are 'ns', 'us' (or 'µs'), 'ms', 's', 'm', 'h'. The default is 30 seconds ('30s').
 
 ### Read-Only
 

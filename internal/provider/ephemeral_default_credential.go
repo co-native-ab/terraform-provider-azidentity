@@ -34,13 +34,14 @@ type ephemeralDefaultCredentialModel struct {
 	EnableCAE                  types.Bool   `tfsdk:"enable_cae"`
 	Scopes                     types.Set    `tfsdk:"scopes"`
 	ContinueOnError            types.Bool   `tfsdk:"continue_on_error"`
+	Timeout                    types.String `tfsdk:"timeout"`
 	AccessToken                types.String `tfsdk:"access_token"`
 	ExpiresOn                  types.String `tfsdk:"expires_on"`
 	Success                    types.Bool   `tfsdk:"success"`
 	Error                      types.String `tfsdk:"error"`
 }
 
-func (r *ephemeralDefaultCredentialModel) newCredentialConfig() credentialConfig {
+func (r *ephemeralDefaultCredentialModel) newCredentialConfig(ctx context.Context) credentialConfig {
 	return credentialConfig{
 		CloudConfig:                getCloudConfig(r.Cloud.ValueString()),
 		TenantID:                   r.TenantID.ValueString(),
@@ -50,6 +51,7 @@ func (r *ephemeralDefaultCredentialModel) newCredentialConfig() credentialConfig
 		EnableCAE:                  r.EnableCAE.ValueBool(),
 		Scopes:                     typesSetToStringSlice(r.Scopes),
 		ContinueOnError:            r.ContinueOnError.ValueBool(),
+		Timeout:                    parseTimeout(ctx, r.Timeout),
 	}
 }
 
@@ -102,6 +104,10 @@ func (r *ephemeralDefaultCredential) Schema(ctx context.Context, _ ephemeral.Sch
 				MarkdownDescription: "ContinueOnError indicates whether to continue on error when acquiring a token. The default is false.",
 				Optional:            true,
 			},
+			"timeout": schema.StringAttribute{
+				MarkdownDescription: "Timeout sets the maximum time allowed for the request to complete, the string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as '300ms', '1.5h' or '2h45m'. Valid time units are 'ns', 'us' (or 'µs'), 'ms', 's', 'm', 'h'. The default is 30 seconds ('30s').",
+				Optional:            true,
+			},
 			"access_token": schema.StringAttribute{
 				MarkdownDescription: "The issued access token.",
 				Computed:            true,
@@ -148,7 +154,7 @@ func (r *ephemeralDefaultCredential) Open(ctx context.Context, req ephemeral.Ope
 		return
 	}
 
-	cfg := data.newCredentialConfig()
+	cfg := data.newCredentialConfig(ctx)
 	token, errSummary, err := getToken(ctx, defaultCredential, r.getCredFn, cfg)
 	if err != nil && cfg.ContinueOnError {
 		data.Error = types.StringValue(err.Error())

@@ -3,6 +3,7 @@ package provider
 import (
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
@@ -82,6 +83,11 @@ func TestEphemeralDefaultCredentialEmpty(t *testing.T) {
 					statecheck.ExpectKnownValue(
 						"echo.this",
 						tfjsonpath.New("data").AtMapKey("continue_on_error"),
+						knownvalue.Null(),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("timeout"),
 						knownvalue.Null(),
 					),
 				},
@@ -167,6 +173,11 @@ func TestEphemeralDefaultCredential(t *testing.T) {
 						tfjsonpath.New("data").AtMapKey("continue_on_error"),
 						knownvalue.Bool(true),
 					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("timeout"),
+						knownvalue.StringExact("1s"),
+					),
 				},
 			},
 		},
@@ -238,6 +249,33 @@ func TestEphemeralDefaultCredentialFailGetToken(t *testing.T) {
 	})
 }
 
+func TestEphemeralDefaultCredentialGetTokenTimeout(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_10_0),
+		},
+		IsUnitTest:               true,
+		ProtoV6ProviderFactories: testProtoV6ProviderFactoriesWithEcho(t, testNewGetCredentialTimeoutFn(t, 50*time.Millisecond)),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+ephemeral "azidentity_default_credential" "this" {
+	scopes  = ["ze-scope-1"]
+	timeout = "10ms"
+}
+
+provider "echo" {
+  data = ephemeral.azidentity_default_credential.this
+}
+
+resource "echo" "this" {}
+`,
+				ExpectError: regexp.MustCompile(`context deadline exceeded`),
+			},
+		},
+	})
+}
+
 func testEphemeralDefaultCredentialEmptyConfig() string {
 	return `
 ephemeral "azidentity_default_credential" "this" {
@@ -263,6 +301,7 @@ ephemeral "azidentity_default_credential" "this" {
 	enable_cae                   = true
 	scopes                       = ["ze-scope-1", "ze-scope-2"]
 	continue_on_error            = true
+	timeout                      = "1s"
 }
 
 provider "echo" {

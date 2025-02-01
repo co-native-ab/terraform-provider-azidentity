@@ -195,6 +195,7 @@ steps:
 - `continue_on_error` (Boolean) ContinueOnError indicates whether to continue on error when acquiring a token. The default is false.
 - `disable_instance_discovery` (Boolean) DisableInstanceDiscovery should be set true only by applications authenticating in disconnected clouds, or private clouds such as Azure Stack. It determines whether the credential requests Microsoft Entra instance metadata from https://login.microsoft.com before authenticating. Setting this to true will skip this request, making the application responsible for ensuring the configured authority is valid and trustworthy. The default is false.
 - `enable_cae` (Boolean) EnableCAE indicates whether to enable Continuous Access Evaluation (CAE) for the requested token. When true, azidentity credentials request CAE tokens for resource APIs supporting CAE. Clients are responsible for handling CAE challenges. If a client that doesn't handle CAE challenges receives a CAE token, it may end up in a loop retrying an API call with a token that has been revoked due to CAE. The default is false.
+- `timeout` (String) Timeout sets the maximum time allowed for the request to complete, the string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as '300ms', '1.5h' or '2h45m'. Valid time units are 'ns', 'us' (or 'µs'), 'ms', 's', 'm', 'h'. The default is 30 seconds ('30s').
 
 ### Read-Only
 

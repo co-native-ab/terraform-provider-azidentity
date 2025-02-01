@@ -38,6 +38,7 @@ type ephemeralHttpRequestModel struct {
 	ResponseHeaders    types.Map    `tfsdk:"response_headers"`
 	ResponseStatusCode types.Int32  `tfsdk:"response_status_code"`
 	ContinueOnError    types.Bool   `tfsdk:"continue_on_error"`
+	Timeout            types.String `tfsdk:"timeout"`
 	Success            types.Bool   `tfsdk:"success"`
 	Error              types.String `tfsdk:"error"`
 }
@@ -85,6 +86,10 @@ func (r *ephemeralHttpRequest) Schema(ctx context.Context, _ ephemeral.SchemaReq
 			},
 			"continue_on_error": schema.BoolAttribute{
 				MarkdownDescription: "ContinueOnError indicates whether to continue on error when the http request fails. The default is false.",
+				Optional:            true,
+			},
+			"timeout": schema.StringAttribute{
+				MarkdownDescription: "Timeout sets the maximum time allowed for the request to complete, the string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as '300ms', '1.5h' or '2h45m'. Valid time units are 'ns', 'us' (or 'µs'), 'ms', 's', 'm', 'h'. The default is 30 seconds ('30s').",
 				Optional:            true,
 			},
 			"response_body": schema.StringAttribute{
@@ -139,6 +144,10 @@ func (r *ephemeralHttpRequest) Open(ctx context.Context, req ephemeral.OpenReque
 		return
 	}
 
+	reqTimeout := parseTimeout(ctx, data.Timeout)
+	reqCtx, cancel := context.WithTimeout(ctx, reqTimeout)
+	defer cancel()
+
 	reqMethod := data.RequestMethod.ValueString()
 	reqUrl := data.RequestURL.ValueString()
 	var reqBody io.ReadCloser = http.NoBody
@@ -146,7 +155,7 @@ func (r *ephemeralHttpRequest) Open(ctx context.Context, req ephemeral.OpenReque
 		reqBody = io.NopCloser(strings.NewReader(data.RequestBody.ValueString()))
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, reqMethod, reqUrl, reqBody)
+	httpReq, err := http.NewRequestWithContext(reqCtx, reqMethod, reqUrl, reqBody)
 	if err != nil {
 		if data.ContinueOnError.ValueBool() {
 			data.Error = types.StringValue(err.Error())

@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
@@ -79,6 +80,11 @@ resource "echo" "this" {}
 						tfjsonpath.New("data").AtMapKey("success"),
 						knownvalue.Bool(true),
 					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("timeout"),
+						knownvalue.Null(),
+					),
 				},
 			},
 		},
@@ -128,6 +134,7 @@ ephemeral "azidentity_http_request" "this" {
 	request_headers = {
 		"Content-Type" = "application/json"
 	}
+	timeout         = "1s"
 }
 
 provider "echo" {
@@ -176,6 +183,11 @@ resource "echo" "this" {}
 						"echo.this",
 						tfjsonpath.New("data").AtMapKey("success"),
 						knownvalue.Bool(true),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("timeout"),
+						knownvalue.StringExact("1s"),
 					),
 				},
 			},
@@ -275,6 +287,114 @@ resource "echo" "this" {}
 						"echo.this",
 						tfjsonpath.New("data").AtMapKey("error"),
 						knownvalue.StringRegexp(regexp.MustCompile(`connection refused`)),
+					),
+				},
+			},
+		},
+	})
+}
+
+func TestEphemeralHttpRequestGetTimeout(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(50 * time.Millisecond)
+	}))
+	serverURL := server.URL
+
+	resource.Test(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_10_0),
+		},
+		IsUnitTest:               true,
+		ProtoV6ProviderFactories: testProtoV6ProviderFactoriesWithEcho(t, testNewTestCredentialFn(t)),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+ephemeral "azidentity_http_request" "this" {
+	request_url    = "%s"
+	request_method = "GET"
+	timeout 	   = "10ms"
+}
+
+provider "echo" {
+  data = ephemeral.azidentity_http_request.this
+}
+
+resource "echo" "this" {}
+`, serverURL),
+				ExpectError: regexp.MustCompile(`context deadline exceeded`),
+			},
+		},
+	})
+}
+
+func TestEphemeralHttpRequestGetTimeoutContinueOnError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(50 * time.Millisecond)
+	}))
+	serverURL := server.URL
+
+	resource.Test(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_10_0),
+		},
+		IsUnitTest:               true,
+		ProtoV6ProviderFactories: testProtoV6ProviderFactoriesWithEcho(t, testNewTestCredentialFn(t)),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+ephemeral "azidentity_http_request" "this" {
+	request_url       = "%s"
+	request_method    = "GET"
+	continue_on_error = true
+	timeout 	      = "10ms"
+}
+
+provider "echo" {
+  data = ephemeral.azidentity_http_request.this
+}
+
+resource "echo" "this" {}
+`, serverURL),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("request_url"),
+						knownvalue.StringExact(server.URL),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("request_method"),
+						knownvalue.StringExact("GET"),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("timeout"),
+						knownvalue.StringExact("10ms"),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("response_body"),
+						knownvalue.Null(),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("response_status_code"),
+						knownvalue.Null(),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("response_headers"),
+						knownvalue.Null(),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("success"),
+						knownvalue.Bool(false),
+					),
+					statecheck.ExpectKnownValue(
+						"echo.this",
+						tfjsonpath.New("data").AtMapKey("error"),
+						knownvalue.StringRegexp(regexp.MustCompile(`context deadline exceeded`)),
 					),
 				},
 			},
