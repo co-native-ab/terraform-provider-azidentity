@@ -20,6 +20,7 @@ type azidentityProvider struct {
 	version    string
 	getCredFn  getCredentialFn
 	httpClient *http.Client
+	runCmdFn   runCommandFn
 }
 
 type AzidentityProviderModel struct{}
@@ -79,6 +80,7 @@ func New(version string) func() provider.Provider {
 			version:    version,
 			getCredFn:  newGetCredentialFn(),
 			httpClient: &http.Client{},
+			runCmdFn:   newRunCommandFn(),
 		}
 	}
 }

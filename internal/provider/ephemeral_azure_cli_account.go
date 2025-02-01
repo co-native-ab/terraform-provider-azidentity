@@ -22,7 +22,25 @@ func newEphemeralAzureCLIAccount() ephemeral.EphemeralResource {
 	return &ephemeralAzureCLIAccount{}
 }
 
-type ephemeralAzureCLIAccount struct{}
+type runCommandFn func(ctx context.Context, stdout *bytes.Buffer, stderr *bytes.Buffer, extraEnv []string, name string, arg []string) error
+
+func newRunCommandFn() runCommandFn {
+	return func(ctx context.Context, stdout *bytes.Buffer, stderr *bytes.Buffer, extraEnv []string, name string, arg []string) error {
+		cmd := exec.CommandContext(ctx, name, arg...)
+		if len(extraEnv) > 0 {
+			cmd.Env = append(cmd.Env, extraEnv...)
+		}
+
+		cmd.Stdout = stdout
+		cmd.Stderr = stderr
+
+		return cmd.Run()
+	}
+}
+
+type ephemeralAzureCLIAccount struct {
+	runCmdFn runCommandFn
+}
 
 type ephemeralAzureCLIAccountModel struct {
 	AzureConfigDir  types.String `tfsdk:"azure_config_dir"`
@@ -74,6 +92,28 @@ func (r *ephemeralAzureCLIAccount) Schema(ctx context.Context, _ ephemeral.Schem
 	}
 }
 
+func (p *ephemeralAzureCLIAccount) Configure(ctx context.Context, req ephemeral.ConfigureRequest, resp *ephemeral.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	provider, ok := req.ProviderData.(*azidentityProvider)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected ProviderData Type",
+			fmt.Sprintf("Expected *azidentityProvider, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+
+	if provider.runCmdFn == nil {
+		resp.Diagnostics.AddError("RunCommandFn is not set", "RunCommandFn is required to run the Azure CLI account show command")
+		return
+	}
+
+	p.runCmdFn = provider.runCmdFn
+}
+
 func (r *ephemeralAzureCLIAccount) Open(ctx context.Context, req ephemeral.OpenRequest, resp *ephemeral.OpenResponse) {
 	var data ephemeralAzureCLIAccountModel
 
@@ -82,16 +122,15 @@ func (r *ephemeralAzureCLIAccount) Open(ctx context.Context, req ephemeral.OpenR
 		return
 	}
 
-	cmd := exec.CommandContext(ctx, "az", []string{"account", "show", "--output", "json"}...)
+	extraEnv := []string{}
 	if data.AzureConfigDir.ValueString() != "" {
-		cmd.Env = append(cmd.Env, fmt.Sprintf("AZURE_CONFIG_DIR=%s", data.AzureConfigDir.ValueString()))
+		extraEnv = append(extraEnv, fmt.Sprintf("AZURE_CONFIG_DIR=%s", data.AzureConfigDir.ValueString()))
 	}
-
 	var stdoutBuf, stderrBuf bytes.Buffer
-	cmd.Stdout = &stdoutBuf
-	cmd.Stderr = &stderrBuf
+	executableName := "az"
+	executableArgs := []string{"account", "show", "--output", "json"}
 
-	err := cmd.Run()
+	err := r.runCmdFn(ctx, &stdoutBuf, &stderrBuf, extraEnv, executableName, executableArgs)
 	if err != nil {
 		if data.ContinueOnError.ValueBool() {
 			data.Error = types.StringValue(err.Error())

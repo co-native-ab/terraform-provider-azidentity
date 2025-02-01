@@ -133,6 +133,11 @@ func (p *ephemeralHttpRequest) Configure(ctx context.Context, req ephemeral.Conf
 		return
 	}
 
+	if provider.httpClient == nil {
+		resp.Diagnostics.AddError("HTTP Client is not set", "HTTP Client is required to send HTTP requests")
+		return
+	}
+
 	p.httpClient = provider.httpClient
 }
 
