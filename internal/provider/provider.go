@@ -53,10 +53,11 @@ func (p *azidentityProvider) Resources(ctx context.Context) []func() resource.Re
 
 func (p *azidentityProvider) EphemeralResources(ctx context.Context) []func() ephemeral.EphemeralResource {
 	return []func() ephemeral.EphemeralResource{
-		newEphemeralDefaultCredential,
+		newEphemeralAzureCLIAccount,
 		newEphemeralAzureCLICredential,
-		newEphemeralClientSecretCredential,
 		newEphemeralClientAssertionCredential,
+		newEphemeralClientSecretCredential,
+		newEphemeralDefaultCredential,
 		newEphemeralEnvironmentVariable,
 		newEphemeralHttpRequest,
 	}
