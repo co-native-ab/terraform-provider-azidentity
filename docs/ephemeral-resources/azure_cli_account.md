@@ -37,8 +37,8 @@ ephemeral "azidentity_azure_cli_account" "this" {}
 
 ### Read-Only
 
-- `error` (String) Error message if acquiring a token failed.
+- `error` (String) Error message if the Azure CLI account show command failed.
 - `json_result` (String) The JSON result of the Azure CLI account show command.
 - `subscription_id` (String) The subscription ID of the Azure account.
-- `success` (Boolean) Indicates if a token was successfully acquired.
+- `success` (Boolean) Indicates whether the Azure CLI account show command succeeded.
 - `tenant_id` (String) The tenant ID of the Azure account.
