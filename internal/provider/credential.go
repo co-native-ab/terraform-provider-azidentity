@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud"
@@ -10,6 +11,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 type credentialType string
@@ -34,6 +36,7 @@ type credentialConfig struct {
 	EnableCAE                  bool                `json:"enable_cae"`
 	Scopes                     []string            `json:"scopes"`
 	ContinueOnError            bool                `json:"continue_on_error"`
+	Timeout                    time.Duration       `json:"timeout"`
 }
 
 type getCredentialFn func(credType credentialType, cfg credentialConfig) (azcore.TokenCredential, error)
@@ -113,6 +116,9 @@ func newClientAssertionCredential(cfg credentialConfig) (azcore.TokenCredential,
 }
 
 func getToken(ctx context.Context, credType credentialType, getCredFn getCredentialFn, cfg credentialConfig) (azcore.AccessToken, string, error) {
+	ctx, cancel := context.WithTimeout(ctx, cfg.Timeout)
+	defer cancel()
+
 	cred, err := getCredFn(credType, cfg)
 	if err != nil {
 		return azcore.AccessToken{}, "Error creating credential", err
@@ -134,6 +140,24 @@ func newTokenRequestOptions(cfg credentialConfig) policy.TokenRequestOptions {
 		Scopes:    cfg.Scopes,
 		TenantID:  cfg.TenantID,
 	}
+}
+
+const defaultTimeout = 30 * time.Second
+
+func parseTimeout(ctx context.Context, input types.String) time.Duration {
+	inputStr := input.ValueString()
+	d, err := time.ParseDuration(inputStr)
+	if err != nil {
+		tflog.Warn(ctx, fmt.Sprintf("Error parsing duration %q into a duration. Defaulting to %q, error: %s", inputStr, defaultTimeout, err))
+		return defaultTimeout
+	}
+
+	if d < 0 {
+		tflog.Warn(ctx, fmt.Sprintf("Duration %q is negative. Defaulting to %q", inputStr, defaultTimeout))
+		return defaultTimeout
+	}
+
+	return d
 }
 
 func typesSetToStringSlice(input types.Set) []string {
