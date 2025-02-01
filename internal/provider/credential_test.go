@@ -57,7 +57,7 @@ func (c *testCredentialFailure) GetToken(ctx context.Context, options policy.Tok
 
 var _ azcore.TokenCredential = (*testCredentialFailure)(nil)
 
-func testNewGetCredentialTimeoutFn(t *testing.T, timeout time.Duration) getCredentialFn {
+func testNewGetCredentialTimeoutFn(t *testing.T, timeout time.Duration) getCredentialFn { // nolint: unparam
 	t.Helper()
 
 	return func(credType credentialType, cfg credentialConfig) (azcore.TokenCredential, error) {
