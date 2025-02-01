@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package provider
 
 import (
@@ -108,11 +105,11 @@ func (r *ephemeralHttpRequest) Schema(ctx context.Context, _ ephemeral.SchemaReq
 				Computed:            true,
 			},
 			"success": schema.BoolAttribute{
-				MarkdownDescription: "Indicates if a token was successfully acquired.",
+				MarkdownDescription: "Indicates if the HTTP request was successful.",
 				Computed:            true,
 			},
 			"error": schema.StringAttribute{
-				MarkdownDescription: "Error message if acquiring a token failed.",
+				MarkdownDescription: "Error message if the HTTP request failed.",
 				Computed:            true,
 			},
 		},
@@ -130,6 +127,11 @@ func (p *ephemeralHttpRequest) Configure(ctx context.Context, req ephemeral.Conf
 			"Unexpected ProviderData Type",
 			fmt.Sprintf("Expected *azidentityProvider, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
+		return
+	}
+
+	if provider.httpClient == nil {
+		resp.Diagnostics.AddError("HTTP Client is not set", "HTTP Client is required to send HTTP requests")
 		return
 	}
 

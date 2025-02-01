@@ -66,8 +66,8 @@ check "ip" {
 
 ### Read-Only
 
-- `error` (String) Error message if acquiring a token failed.
+- `error` (String) Error message if the HTTP request failed.
 - `response_body` (String, Sensitive) The body of the HTTP response.
 - `response_headers` (Map of String, Sensitive) The headers of the HTTP response.
 - `response_status_code` (Number) The status code of the HTTP response.
-- `success` (Boolean) Indicates if a token was successfully acquired.
+- `success` (Boolean) Indicates if the HTTP request was successful.

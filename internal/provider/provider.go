@@ -20,6 +20,7 @@ type azidentityProvider struct {
 	version    string
 	getCredFn  getCredentialFn
 	httpClient *http.Client
+	runCmdFn   runCommandFn
 }
 
 type AzidentityProviderModel struct{}
@@ -53,10 +54,11 @@ func (p *azidentityProvider) Resources(ctx context.Context) []func() resource.Re
 
 func (p *azidentityProvider) EphemeralResources(ctx context.Context) []func() ephemeral.EphemeralResource {
 	return []func() ephemeral.EphemeralResource{
-		newEphemeralDefaultCredential,
+		newEphemeralAzureCLIAccount,
 		newEphemeralAzureCLICredential,
-		newEphemeralClientSecretCredential,
 		newEphemeralClientAssertionCredential,
+		newEphemeralClientSecretCredential,
+		newEphemeralDefaultCredential,
 		newEphemeralEnvironmentVariable,
 		newEphemeralHttpRequest,
 	}
@@ -78,6 +80,7 @@ func New(version string) func() provider.Provider {
 			version:    version,
 			getCredFn:  newGetCredentialFn(),
 			httpClient: &http.Client{},
+			runCmdFn:   newRunCommandFn(),
 		}
 	}
 }
