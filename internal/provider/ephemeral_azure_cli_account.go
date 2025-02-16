@@ -55,7 +55,7 @@ func (r *ephemeralAzureCLIAccount) Metadata(_ context.Context, req ephemeral.Met
 
 func (r *ephemeralAzureCLIAccount) Schema(ctx context.Context, _ ephemeral.SchemaRequest, resp *ephemeral.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Azure CLI Account Ephemeral Resource, which executes the `az account show` command to retrieve the subscription ID and tenant ID.",
+		MarkdownDescription: "The `azidentity_azure_cli_account` resource retrieves subscription and tenant information using the `az account show` command. It provides an ephemeral way to access Azure account details without requiring manual configuration.",
 		Attributes: map[string]schema.Attribute{
 			"azure_config_dir": schema.StringAttribute{
 				MarkdownDescription: "The directory where the Azure CLI configuration is stored. Default to not being set.",

@@ -3,12 +3,12 @@
 page_title: "azidentity_client_assertion_credential Ephemeral Resource - azidentity"
 subcategory: ""
 description: |-
-  Client Assertion Credential Ephemeral Resource
+  The azidentity_client_assertion_credential resource supports authentication via a JWT assertion rather than a client secret. This is useful for scenarios where authentication tokens are issued dynamically or externally.
 ---
 
 # azidentity_client_assertion_credential (Ephemeral Resource)
 
-Client Assertion Credential Ephemeral Resource
+The `azidentity_client_assertion_credential` resource supports authentication via a **JWT assertion** rather than a client secret. This is useful for scenarios where authentication tokens are issued dynamically or externally.
 
 
 ## Example Usage

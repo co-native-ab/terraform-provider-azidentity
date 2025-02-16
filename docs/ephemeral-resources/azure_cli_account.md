@@ -3,12 +3,12 @@
 page_title: "azidentity_azure_cli_account Ephemeral Resource - azidentity"
 subcategory: ""
 description: |-
-  Azure CLI Account Ephemeral Resource, which executes the az account show command to retrieve the subscription ID and tenant ID.
+  The azidentity_azure_cli_account resource retrieves subscription and tenant information using the az account show command. It provides an ephemeral way to access Azure account details without requiring manual configuration.
 ---
 
 # azidentity_azure_cli_account (Ephemeral Resource)
 
-Azure CLI Account Ephemeral Resource, which executes the `az account show` command to retrieve the subscription ID and tenant ID.
+The `azidentity_azure_cli_account` resource retrieves subscription and tenant information using the `az account show` command. It provides an ephemeral way to access Azure account details without requiring manual configuration.
 
 
 ## Example Usage

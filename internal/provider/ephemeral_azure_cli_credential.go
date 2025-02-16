@@ -53,7 +53,7 @@ func (r *ephemeralAzureCLICredential) Metadata(_ context.Context, req ephemeral.
 
 func (r *ephemeralAzureCLICredential) Schema(ctx context.Context, _ ephemeral.SchemaRequest, resp *ephemeral.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Azure CLI Credential Ephemeral Resource",
+		MarkdownDescription: "The `azidentity_azure_cli_credential` resource provides authentication using an active **Azure CLI session**. This allows Terraform to acquire tokens from the CLI without requiring stored credentials.",
 		Attributes: map[string]schema.Attribute{
 			"tenant_id": schema.StringAttribute{
 				MarkdownDescription: "TenantID sets the default tenant for authentication via the Azure CLI and workload identity. The default is empty, use 'organizations' or 'common' if you can't provide one but required to use one.",

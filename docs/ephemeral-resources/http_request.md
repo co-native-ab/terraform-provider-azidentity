@@ -3,12 +3,12 @@
 page_title: "azidentity_http_request Ephemeral Resource - azidentity"
 subcategory: ""
 description: |-
-  HTTP Request Ephemeral Resource
+  The azidentity_http_request resource performs HTTP requests within Terraform. This allows retrieval of external authentication tokens or metadata required for Terraform execution.
 ---
 
 # azidentity_http_request (Ephemeral Resource)
 
-HTTP Request Ephemeral Resource
+The `azidentity_http_request` resource performs HTTP requests within Terraform. This allows retrieval of external authentication tokens or metadata required for Terraform execution.
 
 ## Example Usage
 

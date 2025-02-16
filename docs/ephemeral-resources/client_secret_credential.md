@@ -3,12 +3,12 @@
 page_title: "azidentity_client_secret_credential Ephemeral Resource - azidentity"
 subcategory: ""
 description: |-
-  Client Secret Credential Ephemeral Resource
+  The azidentity_client_secret_credential resource enables authentication via an Azure Client ID and Client Secret. It is intended for service principals that require a static secret for authentication.
 ---
 
 # azidentity_client_secret_credential (Ephemeral Resource)
 
-Client Secret Credential Ephemeral Resource
+The `azidentity_client_secret_credential` resource enables authentication via an Azure **Client ID** and **Client Secret**. It is intended for service principals that require a static secret for authentication.
 
 ## Example Usage
 

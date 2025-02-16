@@ -28,7 +28,7 @@ func (r *ephemeralEnvironmentVariable) Metadata(_ context.Context, req ephemeral
 
 func (r *ephemeralEnvironmentVariable) Schema(ctx context.Context, _ ephemeral.SchemaRequest, resp *ephemeral.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Environment Variable Ephemeral Resource",
+		MarkdownDescription: "The `azidentity_environment_variable` resource retrieves values from environment variables at runtime. It ensures that sensitive data is not stored in the Terraform state.",
 		Attributes: map[string]schema.Attribute{
 			"key": schema.StringAttribute{
 				MarkdownDescription: "The key of the environment variable to get.",

@@ -3,12 +3,12 @@
 page_title: "azidentity_azure_cli_credential Ephemeral Resource - azidentity"
 subcategory: ""
 description: |-
-  Azure CLI Credential Ephemeral Resource
+  The azidentity_azure_cli_credential resource provides authentication using an active Azure CLI session. This allows Terraform to acquire tokens from the CLI without requiring stored credentials.
 ---
 
 # azidentity_azure_cli_credential (Ephemeral Resource)
 
-Azure CLI Credential Ephemeral Resource
+The `azidentity_azure_cli_credential` resource provides authentication using an active **Azure CLI session**. This allows Terraform to acquire tokens from the CLI without requiring stored credentials.
 
 ## Example Usage
 

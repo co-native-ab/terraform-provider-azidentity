@@ -46,7 +46,7 @@ func (r *ephemeralHttpRequest) Metadata(_ context.Context, req ephemeral.Metadat
 
 func (r *ephemeralHttpRequest) Schema(ctx context.Context, _ ephemeral.SchemaRequest, resp *ephemeral.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "HTTP Request Ephemeral Resource",
+		MarkdownDescription: "The `azidentity_http_request` resource performs HTTP requests within Terraform. This allows retrieval of external authentication tokens or metadata required for Terraform execution.",
 		Attributes: map[string]schema.Attribute{
 			"request_url": schema.StringAttribute{
 				MarkdownDescription: "The URL to send the HTTP request to.",
