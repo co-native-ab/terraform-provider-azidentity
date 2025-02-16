@@ -18,7 +18,7 @@ linters:
     - nilerr
     - predeclared
     - staticcheck
-    - tenv
+    - usetesting
     - unconvert
     - unparam
     - unused
