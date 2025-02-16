@@ -17,7 +17,7 @@ terraform {
   required_version = ">= 1.8.0"
   required_providers {
     azidentity = {
-      source = "registry.terraform.io/co-native-ab/azidentity"
+      source = "co-native-ab/azidentity"
     }
   }
 }
