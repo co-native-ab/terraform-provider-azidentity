@@ -6,7 +6,7 @@ terraform {
       version = "1.6.0"
     }
     azidentity = {
-      source = "registry.terraform.io/co-native-ab/azidentity"
+      source = "co-native-ab/azidentity"
     }
   }
 }

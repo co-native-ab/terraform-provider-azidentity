@@ -18,7 +18,7 @@ terraform {
   required_version = ">= 1.10.0"
   required_providers {
     azidentity = {
-      source = "registry.terraform.io/co-native-ab/azidentity"
+      source = "co-native-ab/azidentity"
     }
   }
 }
@@ -33,7 +33,6 @@ ephemeral "azidentity_client_assertion_credential" "this" {
 }
 ```
 
-
 ## Azure DevOps Example
 
 This is an example to show how to use the `azidentity_client_assertion_credential` resource with Azure DevOps terraform provider.
@@ -47,7 +46,7 @@ terraform {
       version = "1.6.0"
     }
     azidentity = {
-      source = "registry.terraform.io/co-native-ab/azidentity"
+      source = "co-native-ab/azidentity"
     }
   }
 }

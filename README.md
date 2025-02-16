@@ -23,7 +23,7 @@ The **azidentity** Terraform provider enables secure, ephemeral authentication f
 terraform {
   required_providers {
     azidentity = {
-      source  = "registry.terraform.io/co-native-ab/azidentity"
+      source  = "co-native-ab/azidentity"
     }
   }
 }
@@ -54,14 +54,14 @@ ephemeral "azidentity_client_secret_credential" "this" {
 
 ## 🔍 Supported Credential Types
 
-| Credential Type                   | Description                                                          |
-| --------------------------------- | -------------------------------------------------------------------- |
-| **DefaultAzureCredential**        | Uses environment variables, managed identities, or Azure CLI logins. |
-| **ClientSecretCredential**        | Authenticates a service principal using a client secret.             |
-| **ClientAssertionCredential**     | Authenticates a service principal with a JWT assertion.              |
-| **AzureCLICredential**            | Uses an active Azure CLI session.                                    |
-| **EnvironmentVariableCredential** | Reads credentials from environment variables.                        |
-| **HTTP Request Credential**       | Fetches tokens via an HTTP API request.                              |
+| Credential Type               | Description                                                          |
+| ----------------------------- | -------------------------------------------------------------------- |
+| **DefaultAzureCredential**    | Uses environment variables, managed identities, or Azure CLI logins. |
+| **ClientSecretCredential**    | Authenticates a service principal using a client secret.             |
+| **ClientAssertionCredential** | Authenticates a service principal with a JWT assertion.              |
+| **AzureCLICredential**        | Uses an active Azure CLI session.                                    |
+| **HTTP Request**              | Performs HTTP request.                                               |
+| **Environment Variable**      | Reads value from environment variables.                              |
 
 ---
 
