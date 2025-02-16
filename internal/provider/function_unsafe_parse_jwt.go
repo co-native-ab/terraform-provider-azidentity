@@ -25,8 +25,7 @@ func (r functionUnsafeParseJWT) Metadata(_ context.Context, req function.Metadat
 
 func (r functionUnsafeParseJWT) Definition(_ context.Context, _ function.DefinitionRequest, resp *function.DefinitionResponse) {
 	resp.Definition = function.Definition{
-		Summary:             "Parse JWT without validating anything or verifying the signature, only use for the purpose of checking claims but not for anything security related. Outputs a JSON string that can be decoded with jsondecode().",
-		MarkdownDescription: "Parse JWT without validating anything or verifying the signature, only use for the purpose of checking claims but not for anything security related. Outputs a JSON string that can be decoded with jsondecode().",
+		MarkdownDescription: "The `unsafe_parse_jwt` function parses a JSON Web Token (JWT) without validating its signature or verifying its authenticity. This function is useful for extracting and inspecting claims from a JWT but should **never** be used for security-sensitive operations.",
 		Parameters: []function.Parameter{
 			function.StringParameter{
 				Name:                "jwt",

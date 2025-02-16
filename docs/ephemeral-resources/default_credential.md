@@ -3,12 +3,12 @@
 page_title: "azidentity_default_credential Ephemeral Resource - azidentity"
 subcategory: ""
 description: |-
-  Default Credential Ephemeral Resource
+  The azidentity_default_credential resource provides temporary authentication tokens using the DefaultAzureCredential mechanism. It automatically selects an appropriate authentication method, such as environment variables, managed identities, or an Azure CLI session.
 ---
 
 # azidentity_default_credential (Ephemeral Resource)
 
-Default Credential Ephemeral Resource
+The `azidentity_default_credential` resource provides temporary authentication tokens using the **DefaultAzureCredential** mechanism. It automatically selects an appropriate authentication method, such as environment variables, managed identities, or an Azure CLI session.
 
 ## Example Usage
 

@@ -3,12 +3,12 @@
 page_title: "unsafe_parse_jwt function - azidentity"
 subcategory: ""
 description: |-
-  Parse JWT without validating anything or verifying the signature, only use for the purpose of checking claims but not for anything security related. Outputs a JSON string that can be decoded with jsondecode().
+  
 ---
 
 # function: unsafe_parse_jwt
 
-Parse JWT without validating anything or verifying the signature, only use for the purpose of checking claims but not for anything security related. Outputs a JSON string that can be decoded with jsondecode().
+The `unsafe_parse_jwt` function parses a JSON Web Token (JWT) without validating its signature or verifying its authenticity. This function is useful for extracting and inspecting claims from a JWT but should **never** be used for security-sensitive operations.
 
 ## Example Usage
 

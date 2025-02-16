@@ -58,7 +58,7 @@ func (r *ephemeralDefaultCredential) Metadata(_ context.Context, req ephemeral.M
 
 func (r *ephemeralDefaultCredential) Schema(ctx context.Context, _ ephemeral.SchemaRequest, resp *ephemeral.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Default Credential Ephemeral Resource",
+		MarkdownDescription: "The `azidentity_default_credential` resource provides temporary authentication tokens using the **DefaultAzureCredential** mechanism. It automatically selects an appropriate authentication method, such as environment variables, managed identities, or an Azure CLI session.",
 		Attributes: map[string]schema.Attribute{
 			"cloud": schema.StringAttribute{
 				MarkdownDescription: "Cloud specifies a cloud for the client. The default is AzurePublic.",

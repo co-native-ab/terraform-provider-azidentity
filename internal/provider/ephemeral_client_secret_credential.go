@@ -62,7 +62,7 @@ func (r *ephemeralClientSecretCredential) Metadata(_ context.Context, req epheme
 
 func (r *ephemeralClientSecretCredential) Schema(ctx context.Context, _ ephemeral.SchemaRequest, resp *ephemeral.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Client Secret Credential Ephemeral Resource",
+		MarkdownDescription: "The `azidentity_client_secret_credential` resource enables authentication via an Azure **Client ID** and **Client Secret**. It is intended for service principals that require a static secret for authentication.",
 		Attributes: map[string]schema.Attribute{
 			"tenant_id": schema.StringAttribute{
 				MarkdownDescription: "TenantID sets the default tenant for authentication via the Azure CLI and workload identity. Use 'organizations' or 'common' if you can't provide one but required to use one.",

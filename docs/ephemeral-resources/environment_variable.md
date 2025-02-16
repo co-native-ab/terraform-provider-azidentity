@@ -3,12 +3,12 @@
 page_title: "azidentity_environment_variable Ephemeral Resource - azidentity"
 subcategory: ""
 description: |-
-  Environment Variable Ephemeral Resource
+  The azidentity_environment_variable resource retrieves values from environment variables at runtime. It ensures that sensitive data is not stored in the Terraform state.
 ---
 
 # azidentity_environment_variable (Ephemeral Resource)
 
-Environment Variable Ephemeral Resource
+The `azidentity_environment_variable` resource retrieves values from environment variables at runtime. It ensures that sensitive data is not stored in the Terraform state.
 
 ## Example Usage
 

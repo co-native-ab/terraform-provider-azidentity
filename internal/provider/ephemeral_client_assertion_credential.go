@@ -62,7 +62,7 @@ func (r *ephemeralClientAssertionCredential) Metadata(_ context.Context, req eph
 
 func (r *ephemeralClientAssertionCredential) Schema(ctx context.Context, _ ephemeral.SchemaRequest, resp *ephemeral.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Client Assertion Credential Ephemeral Resource",
+		MarkdownDescription: "The `azidentity_client_assertion_credential` resource supports authentication via a **JWT assertion** rather than a client secret. This is useful for scenarios where authentication tokens are issued dynamically or externally.",
 		Attributes: map[string]schema.Attribute{
 			"tenant_id": schema.StringAttribute{
 				MarkdownDescription: "TenantID sets the default tenant for authentication via the Azure CLI and workload identity. Use 'organizations' or 'common' if you can't provide one but required to use one.",
