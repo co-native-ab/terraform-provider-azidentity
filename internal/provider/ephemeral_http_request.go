@@ -196,7 +196,7 @@ func (r *ephemeralHttpRequest) Open(ctx context.Context, req ephemeral.OpenReque
 		return
 	}
 
-	defer httpRes.Body.Close()
+	defer func() { _ = httpRes.Body.Close() }()
 
 	resBody, err := io.ReadAll(httpRes.Body)
 	if err != nil {
