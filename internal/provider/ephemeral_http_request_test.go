@@ -105,7 +105,7 @@ func TestEphemeralHttpRequestPost(t *testing.T) {
 		if err != nil {
 			t.Fatalf("failed to read request body: %v", err)
 		}
-		defer r.Body.Close()
+		defer func() { _ = r.Body.Close() }()
 
 		if string(reqBody) != `{"foo":"bar"}` {
 			t.Fatalf("expected request body to be {\"foo\":\"bar\"}, got %s", string(reqBody))
