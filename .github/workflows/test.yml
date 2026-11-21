@@ -2,8 +2,6 @@ name: Tests
 
 on:
   pull_request:
-    paths-ignore:
-      - "README.md"
 
 permissions:
   contents: read
@@ -69,3 +67,16 @@ jobs:
           TF_ACC: "1"
         run: go test -v -cover ./internal/provider/
         timeout-minutes: 10
+
+  ci-ok:
+    name: ci-ok
+    if: always()
+    needs: [build, generate, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check that all jobs succeeded
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}" = "true" ]; then
+            echo "One or more required jobs did not succeed."
+            exit 1
+          fi
